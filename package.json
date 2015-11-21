@@ -1,0 +1,17 @@
+{
+  "name": "pingive",
+  "version": "1.0.0",
+  "description": "An API for ping uptime",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.13.3",
+    "mysql": "^2.9.0",
+    "net-ping": "^1.1.12",
+    "sequelize": "^3.14.1"
+  }
+}
