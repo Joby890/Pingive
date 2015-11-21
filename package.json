@@ -12,6 +12,7 @@
     "express": "^4.13.3",
     "mysql": "^2.9.0",
     "net-ping": "^1.1.12",
-    "sequelize": "^3.14.1"
+    "sequelize": "^3.14.1",
+    "sync": "^0.2.5"
   }
 }
