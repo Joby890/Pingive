@@ -7,7 +7,7 @@ class Ping {
 
 
     ping() {
-
+      
     }
 }
 
