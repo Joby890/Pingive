@@ -28,6 +28,8 @@ var Watching = sequelize.define('watching', {
 
 var Results = sequelize.define("results", {
   status: Sequelize.STRING,
+  time: Sequelize.INTEGER,
+
 })
 
 Results.belongsTo(Watching);
@@ -88,9 +90,7 @@ app.get('/update/*', function(req, res) {
 })
 
 app.post("/status/*", function(req, res) {
-  console.log(req.body)
   var q = req.body.q;
-  console.log(q)
   var ip = getIP(req.path)
   if(!q) {
     getStatus(getIP(req.path)).then(function(result) {
@@ -117,7 +117,7 @@ app.post("/status/*", function(req, res) {
         for(var i = results.results.length - 1 - q; i < results.results.length; i++){
           var current = results.results[i];
           if(current !== undefined) {
-            result.results.push({"message": current.status, "time": current.createdAt});            
+            result.results.push({"message": current.status, "time": current.createdAt, "pong": current.time});            
           }
         }
 
@@ -152,7 +152,8 @@ app.get('/add/*', function(req,res) {
 
 
 function updatePing(ip) {
-    session.pingHost(ip, function (error, target) {
+    session.pingHost(ip, function (error, target, sentTime, recvTime) {
+      console.log()
       var status = "";
       if (error) {
         status = error.toString();
@@ -172,7 +173,7 @@ function updatePing(ip) {
           watchee.percent = "" + ((((length * percent) / 100)) / (1 + length)) * 100;
         }
         watchee.save();
-        Results.create({"status": status}).then(function(result) {
+        Results.create({"status": status, "time": (recvTime - sentTime),}).then(function(result) {
           result.setWatching(watchee);
           result.save();
         })
