@@ -1,6 +1,16 @@
 <h1>Tracker</h1>
-<linechart data="data" options="options"></linechart>
 {{ip}}
 {{percent}}%
 {{calc_percent}}%
-{{result}}
+<md-button class="md-raised" ng-click="graph(60)">Hour</md-button>
+<md-button class="md-raised" ng-click="graph(360)">6 Hours</md-button>
+<md-button class="md-raised" ng-click="graph(720)">12 Hours</md-button>
+<md-button class="md-raised" ng-click="graph(1440)">1 Day</md-button>
+<md-button class="md-raised" ng-click="graph(4320)">3 Day</md-button>
+<md-button class="md-raised" ng-click="graph(10080)">Week</md-button>
+<md-button class="md-raised" ng-click="graph(40320)">Month</md-button>
+<md-button class="md-raised" ng-click="graph(40320)">All</md-button>
+<div width=6>
+  <linechart  data="data" options="options" height="500"></linechart>
+</div>
+

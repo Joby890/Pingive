@@ -10,7 +10,7 @@ var Sequelize = require('sequelize');
 var sequelize;
 var servers = {};
 //var froutes = require("./froutes")
-
+var tracking = 0;
 if (process.env.NODE_MODE === 'prod') {
   sequelize = new Sequelize(process.env.DATABASE, process.env.USERNAME, process.env.PASSWORD);
   port = process.env.port;
@@ -38,6 +38,7 @@ Watching.hasMany(Results)
 sequelize.sync().then(function() {
   Watching.findAll({include:[Results]}).then(function(models) {
     for(var i = 0; i < models.length; i++) {
+      tracking++;
       var watch = models[i];
       //Calc uptime
       var percent = 0;
@@ -137,9 +138,16 @@ app.get("/status/*", function(req, res) {
   });
 })
 
+app.get("/tracking", function(req, res) {
+  res.send({tracking: tracking});
+})
+
 app.get('/add/*', function(req,res) {
   var ip = getIP(req.path)  
   Watching.findOrCreate({where: {ip: ip}}).then(function(watchee) {
+    if(!watchee[1]) {
+      tracking++;
+    }
     schedulePing(ip)
     getStatus(ip).then(function(status) {
       res.send(status);

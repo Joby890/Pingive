@@ -1,4 +1,4 @@
-var app = angular.module("pinGive",['ui.router','n3-line-chart'])
+var app = angular.module("pinGive",['ui.router','n3-line-chart','ngMaterial'])
   .controller("Home", ["$rootScope", "$scope", "$http", "$state", function($rootScope, $scope, $http, state) {
     $scope.trackIP = function() {
       var ip = $scope.ip;
@@ -7,6 +7,9 @@ var app = angular.module("pinGive",['ui.router','n3-line-chart'])
         state.go("^.tracker")
       });
     }
+    $http({url: "/tracking"}).then(function(result) {
+      $scope.tracking_num = result.data.tracking;
+    })
   }]);
 
   app.config(function($stateProvider, $urlRouterProvider) {
@@ -24,12 +27,12 @@ var app = angular.module("pinGive",['ui.router','n3-line-chart'])
     .state('tracker', {
       url: "/tracker",
       templateUrl: "views/tracker.html",
-      controller: ["$rootScope", "$scope", function($rootScope, $scope) {
+      controller: ["$rootScope", "$scope", "$http", function($rootScope, $scope, $http) {
           $scope.options = {
             axes: {
               x: {
                 key: "x",
-                labelFunction: function (v) {return 'Na';}
+                labelFunction: function (v) {return v}
               },
               y: {type: "log"}
             },
@@ -38,7 +41,7 @@ var app = angular.module("pinGive",['ui.router','n3-line-chart'])
             },
             series: [
               {y: 'value', color: 'steelblue', thickness: '2px',  striped: true, label: 'Ping Time'},
-              {y: 'up', axis: 'y2', color: 'lightsteelblue', visible: true, drawDots: true, dotSize: 2, label: "Status"}
+              {y: 'up', axis: 'y2', color: 'darkblue', visible: true, drawDots: true, dotSize: 1, label: "Status"}
             ],
             lineMode: 'linear',
             tension: 0.7,
@@ -48,6 +51,28 @@ var app = angular.module("pinGive",['ui.router','n3-line-chart'])
             hideOverflow: false,
             columnsHGap: 5
           }
+          $scope.graph = function(num) {
+             $http({
+                url:"/status/"+$rootScope.ip,
+                "method": "POST",
+                data: {q: num},
+            }).then(function(result) {
+              $scope.result = result.data;
+              var past = result.data.results;
+              var percent = 0;
+              $scope.data = [];
+              for(var i = 0; i < past.length; i++) {
+                if(past[i].message === "Alive") {
+                  percent++;
+                  $scope.data.push({x:i, value:past[i].pong, up:1})
+                }  else {
+                  $scope.data.push({x:i, value:past[i].pong, up:0})
+                }
+              }
+              $scope.percent = result.data.percent;
+              $scope.calc_percent = percent / past.length * 100;
+            });
+          }
 
 
       }],
@@ -55,7 +80,7 @@ var app = angular.module("pinGive",['ui.router','n3-line-chart'])
         $http({
           url:"/status/"+$rootScope.ip,
           "method": "POST",
-          data: {q: 1000},
+          data: {q: 60},
         }).then(function(result) {
           $rootScope.result = result.data;
           var past = result.data.results;
